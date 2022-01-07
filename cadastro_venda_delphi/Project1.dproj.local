@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2021/12/03 15:29:28.000.616,=C:\Users\joao.matos\Documents\RAD Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2021/12/07 08:03:20.000.952,=C:\Users\joao.matos\Documents\RAD Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2021/12/29 15:27:06.000.254,=C:\Users\joao.matos\Documents\RAD Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2021/12/29 15:27:42.000.358,C:\Users\joao.matos\Documents\RAD Studio\Projects\Unit1.dfm=C:\Users\joao.matos\Desktop\cadastro_venda_delphi\Unit1.dfm</Transaction>
+    <Transaction>2021/12/29 15:27:42.000.358,C:\Users\joao.matos\Documents\RAD Studio\Projects\Unit1.pas=C:\Users\joao.matos\Desktop\cadastro_venda_delphi\Unit1.pas</Transaction>
+    <Transaction>2021/12/29 15:27:44.000.557,C:\Users\joao.matos\Documents\RAD Studio\Projects\Project1.dproj=C:\Users\joao.matos\Desktop\cadastro_venda_delphi\Project1.dproj</Transaction>
+  </Transactions>
+</BorlandProject>

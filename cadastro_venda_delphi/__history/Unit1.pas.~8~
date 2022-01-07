@@ -1,0 +1,369 @@
+unit Unit1;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Vcl.Grids, Vcl.StdCtrls,
+  Vcl.Buttons, Vcl.ExtCtrls;
+
+type
+  TForm1 = class(TForm)
+    co: TPageControl;
+    Cadastro: TTabSheet;
+    EDT_CODIGO: TEdit;
+    EDT_NOME: TEdit;
+    EDT_DATA: TEdit;
+    EDT_VALOR: TEdit;
+    Button1: TButton;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    StringGrid1: TStringGrid;
+    EDT_QUANTIDADE: TEdit;
+    EDT_VALOR_UNITARIO: TEdit;
+    Label5: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
+    EDT_PRODUTO: TEdit;
+    Button3: TButton;
+    Label8: TLabel;
+    Button4: TButton;
+    Button5: TButton;
+    BitBtn1: TBitBtn;
+    Timer1: TTimer;
+    TabSheet1: TTabSheet;
+    StringGrid2: TStringGrid;
+    BitBtn2: TBitBtn;
+    Button2: TButton;
+    procedure Button1Click(Sender: TObject);
+    function SoLetras(Nome: string): string;
+    procedure FormCreate(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
+    procedure StringGrid1DblClick(Sender: TObject);
+    procedure BitBtn2Click(Sender: TObject);
+    function verificaproduto(produto: string): Integer;
+    procedure Button2Click(Sender: TObject);
+    procedure StringGrid2DblClick(Sender: TObject);
+  
+  private
+    procedure LimparCampos;
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form1: TForm1;
+  FarraMult: array[1..10,1..5]of string;
+  FarraMult2: array[1..10,1..4]of string;
+  CODIGO: Integer;
+const
+   CNT_PRODUTO = 0;
+   CNT_QUANTIDADE = 1;
+   CNT_VALORUNITARIO = 2;
+   CNT_VALORTOTAL = 3;
+implementation
+
+{$R *.dfm}
+//click do botão finilizar
+procedure TForm1.BitBtn2Click(Sender: TObject);
+var
+  I,RCB_CODIGO,INDEX: Integer;
+  VALOR_TOTAL_COMPRA: Currency;
+  valor: string;
+  o: Integer;
+begin
+   if ((EDT_NOME.Text) = '') then
+   begin
+      MessageDlg('Por favor, Insira o nome do cliente',mtError,[mbOK],0);
+      exit;
+   end;
+   if (StringGrid2.Cells[CNT_PRODUTO, StringGrid2.RowCount - 1] <> '') then
+   begin
+      StringGrid2.RowCount :=  StringGrid2.RowCount + 1;
+      INDEX:= StringGrid2.RowCount - 1;
+   end
+   else
+      INDEX:= 1;
+   for I := 1 to High(FarraMult[i]) do
+   begin
+      FarraMult[i,2]:= StringGrid1.Cells[CNT_PRODUTO, i];
+      FarraMult[i,3]:= StringGrid1.Cells[CNT_QUANTIDADE, i];
+      FarraMult[i,4]:= StringGrid1.Cells[CNT_VALORUNITARIO, i];
+      FarraMult[i,5]:= StringGrid1.Cells[CNT_VALORTOTAL, i];
+      if (FarraMult[i,5] = '') then
+         break;
+      VALOR_TOTAL_COMPRA:= VALOR_TOTAL_COMPRA + StrToCurr(FarraMult[i,5]);
+   end;
+   FarraMult[INDEX,1]:= IntToStr(INDEX);
+   FarraMult2[INDEX,1]:= IntToStr(INDEX);
+   FarraMult2[INDEX,2]:= EDT_NOME.Text;
+   FarraMult2[INDEX,3]:= EDT_DATA.Text;
+   FarraMult2[INDEX,4]:= CurrToStr(VALOR_TOTAL_COMPRA);
+   StringGrid2.Cells[0,INDEX]:= FarraMult2[INDEX,1];
+   StringGrid2.Cells[1,INDEX]:= FarraMult2[INDEX,2];
+   StringGrid2.Cells[2,INDEX]:= FarraMult2[INDEX,3];
+   StringGrid2.Cells[3,INDEX]:= FarraMult2[INDEX,4];
+   MessageDlg('Compra Finalizada com sucesso!',mtConfirmation,[mbOK],0);
+   with StringGrid1 do
+      for o := 1 to RowCount -1 do
+         Rows[o].Clear;
+   StringGrid1.RowCount := 2;
+   StringGrid2.RowCount := 2;
+   EDT_NOME.Clear;
+   LimparCampos;
+end;
+
+//click do botão adicionar
+procedure TForm1.Button1Click(Sender: TObject);
+var CAL_VALOR_TOTAL: Currency;
+   index: Integer;
+begin
+   if (trim(EDT_PRODUTO.Text) = '') or (trim(EDT_QUANTIDADE.Text) = '') or (trim(EDT_VALOR_UNITARIO.Text) = '')then
+   begin
+      MessageDlg('Por favor, Insira todos os valores',mtError,[mbOK],0);
+      exit;
+   end;
+   if (StringGrid1.Cells[CNT_PRODUTO, StringGrid1.RowCount-1] <> '') then
+   begin
+      StringGrid1.RowCount :=  StringGrid1.RowCount + 1;
+      index:= StringGrid1.RowCount - 1;
+   end
+   else
+      index := 1;
+   CAL_VALOR_TOTAL:= StrToCurr(EDT_QUANTIDADE.Text) * StrToCurr(EDT_VALOR_UNITARIO.Text);
+   StringGrid1.Cells[CNT_PRODUTO, index] := EDT_PRODUTO.Text;
+   StringGrid1.Cells[CNT_QUANTIDADE, index] := EDT_QUANTIDADE.Text;
+   StringGrid1.Cells[CNT_VALORUNITARIO, index] := EDT_VALOR_UNITARIO.Text;
+   StringGrid1.Cells[CNT_VALORTOTAL, index] := CurrToStr(CAL_VALOR_TOTAL);
+   LimparCampos;
+end;
+//alterar produtos
+procedure TForm1.Button2Click(Sender: TObject);
+var RCB_INDEX_EXISTENTE: Integer;
+   CAL_VALOR_TOTAL: Currency;
+begin
+
+   RCB_INDEX_EXISTENTE:= verificaproduto(EDT_PRODUTO.Text);
+   if (RCB_INDEX_EXISTENTE = -1) then
+      MessageDlg('Produto não encontrado',mtError,[mbOK],0);
+   StringGrid1.Cells[CNT_QUANTIDADE, RCB_INDEX_EXISTENTE] := EDT_QUANTIDADE.Text;
+   StringGrid1.Cells[CNT_VALORUNITARIO, RCB_INDEX_EXISTENTE] := EDT_VALOR_UNITARIO.Text;
+   CAL_VALOR_TOTAL:= StrToCurr(EDT_QUANTIDADE.Text) * StrToCurr(EDT_VALOR_UNITARIO.Text);
+   StringGrid1.Cells[CNT_VALORTOTAL, RCB_INDEX_EXISTENTE] := CurrToStr(CAL_VALOR_TOTAL);
+   EDT_PRODUTO.Enabled:=true;
+   LimparCampos;
+end;
+
+procedure TForm1.LimparCampos;
+begin
+  EDT_PRODUTO.Clear;
+  EDT_QUANTIDADE.Clear;
+  EDT_VALOR_UNITARIO.Clear;
+  EDT_PRODUTO.SetFocus;
+end;
+
+//ordenação de stringrid
+procedure TForm1.Button3Click(Sender: TObject);
+var
+  J,I,U: Integer;
+  auxiliar: string;
+begin
+  for I := 1 to 9 do
+  begin
+    for j := i + 1 to 10 do
+    begin
+      if (FarraMult[j, 1] <> '') then
+      begin
+        if (FarraMult[i, 1]) > (FarraMult[j, 1]) then
+        begin
+           auxiliar := FarraMult[j, 1];
+           FarraMult[j, 1] := FarraMult[i, 1];
+           FarraMult[i, 1] := auxiliar;
+           auxiliar := FarraMult[j, 2];
+           FarraMult[j, 2] := FarraMult[i, 2];
+           FarraMult[i, 2] := auxiliar;
+           auxiliar := FarraMult[j, 3];
+           FarraMult[j, 3] := FarraMult[i, 3];
+           FarraMult[i, 3] := auxiliar;
+        end;
+      end;
+    end;
+    for u := 1 to 10 do
+    begin
+       StringGrid1.Cells[0, u] := FarraMult[u, 1];
+       StringGrid1.Cells[1, u] := FarraMult[u, 2];
+       StringGrid1.Cells[2, u] := FarraMult[u, 3];
+    end;
+  end;
+end;
+
+//ordenação de stringrid
+procedure TForm1.Button4Click(Sender: TObject);
+var
+  J,I,u: Integer;
+  auxiliar: string;
+begin
+   for I := 1 to 9 do
+   begin
+      for j := i + 1 to 10 do
+      begin
+         if (FarraMult[j, 2] <> '') then
+         begin
+            if (FarraMult[i, 2]) < (FarraMult[j, 2]) then
+            begin
+               auxiliar := FarraMult[j, 1];
+               FarraMult[j, 1] := FarraMult[i, 1];
+               FarraMult[i, 1] := auxiliar;
+               auxiliar := FarraMult[j, 2];
+               FarraMult[j, 2] := FarraMult[i, 2];
+               FarraMult[i, 2] := auxiliar;
+               auxiliar := FarraMult[j, 3];
+               FarraMult[j, 3] := FarraMult[i, 3];
+               FarraMult[i, 3] := auxiliar;
+            end;
+         end;
+      end;
+      for u := 1 to 10 do
+      begin
+         StringGrid1.Cells[0, u] := FarraMult[u, 1];
+         StringGrid1.Cells[1, u] := FarraMult[u, 2];
+         StringGrid1.Cells[2, u] := FarraMult[u, 3];
+      end;
+   end;
+end;
+
+//ordenação de stringrid
+procedure TForm1.Button5Click(Sender: TObject);
+var
+  J,I,u: Integer;
+  auxiliar: string;
+begin
+  for I := 1 to 9 do
+  begin
+    for j := i + 1 to 10 do
+    begin
+      if (FarraMult[j, 3] <> '') then
+      begin
+        if (FarraMult[i, 3]) < (FarraMult[j, 3]) then
+        begin
+           auxiliar := FarraMult[j, 1];
+           FarraMult[j, 1] := FarraMult[i, 1];
+           FarraMult[i, 1] := auxiliar;
+           auxiliar := FarraMult[j, 2];
+           FarraMult[j, 2] := FarraMult[i, 2];
+           FarraMult[i, 2] := auxiliar;
+           auxiliar := FarraMult[j, 3];
+           FarraMult[j, 3] := FarraMult[i, 3];
+           FarraMult[i, 3] := auxiliar;
+        end;
+      end;
+    end;
+    for u := 1 to 10 do
+    begin
+       StringGrid1.Cells[0, u] := FarraMult[u, 1];
+       StringGrid1.Cells[1, u] := FarraMult[u, 2];
+       StringGrid1.Cells[2, u] := FarraMult[u, 3];
+    end;
+  end;
+end;
+
+//instancia valores na criação do formulario
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+   Button2.Enabled:= false;
+   CODIGO := 0;
+   StringGrid1.Cells[CNT_PRODUTO, 0] := 'Produto';
+   StringGrid1.Cells[CNT_QUANTIDADE, 0] := 'Quantidade';
+   StringGrid1.Cells[CNT_VALORUNITARIO, 0] := 'Valor Unitario';
+   StringGrid1.Cells[CNT_VALORTOTAL, 0] := 'Valor Total';
+   StringGrid1.ColWidths[CNT_PRODUTO] := 200;
+   StringGrid1.ColWidths[CNT_QUANTIDADE] := 70;
+   StringGrid1.ColWidths[CNT_VALORUNITARIO] := 150;
+   StringGrid1.ColWidths[CNT_VALORTOTAL] := 150;
+
+   StringGrid2.Cells[0, 0] := 'Codigo';
+   StringGrid2.Cells[1, 0] := 'Nome do cliente';
+   StringGrid2.Cells[2, 0] := 'Data e hora';
+   StringGrid2.Cells[3, 0] := 'Valor total';
+   StringGrid2.ColWidths[0] := 50;
+   StringGrid2.ColWidths[1] := 300;
+   StringGrid2.ColWidths[2] := 200;
+   StringGrid2.ColWidths[3] := 140;
+end;
+
+//função para tirar espacoes em branco
+function TForm1.SoLetras(Nome: string): string;
+const
+   vazio = '';
+   espaco = ' ';
+begin
+   Result:= StringReplace(Nome,espaco,vazio,[rfReplaceAll]);
+end;
+
+//dois click para abri produtos na stringrid
+procedure TForm1.StringGrid1DblClick(Sender: TObject);
+begin
+   Button1.Enabled:= false;
+   EDT_PRODUTO.Enabled:= false;
+   Button2.Enabled:= true;
+   if (StringGrid1.Row <> 0) then
+   begin
+      EDT_PRODUTO.Text:= StringGrid1.Cells[CNT_PRODUTO,StringGrid1.Row];
+   end;
+   if (StringGrid1.Row <> 0) then
+   begin
+      EDT_QUANTIDADE.Text:= StringGrid1.Cells[CNT_QUANTIDADE,StringGrid1.Row];
+   end;
+   if (StringGrid1.Row <> 0) then
+   begin
+      EDT_VALOR_UNITARIO.Text:= StringGrid1.Cells[CNT_VALORUNITARIO,StringGrid1.Row];
+   end;
+end;
+
+procedure TForm1.StringGrid2DblClick(Sender: TObject);
+var
+  I: Integer;
+begin
+//   for I := 1 to 10 do
+//   begin
+//      if (FarraMult2[i,1] = '') then
+//      begin
+//         if (FarraMult[i,1] = FarraMult2[i,1]) then
+//         begin
+//            EDT_CODIGO.Text := FarraMult[i,1];
+//            EDT_NOME.Text:= FarraMult2[i,2];
+//            EDT_DATA.Text:= FarraMult2[i,3];
+//         end;
+//      end;
+//   end;
+end;
+
+//data e hora atualizada
+procedure TForm1.Timer1Timer(Sender: TObject);
+begin
+   EDT_DATA.Text:= DateTimeToStr(now);
+end;
+
+//função para retornar se existe produtos
+function TForm1.verificaproduto(produto: string): Integer;
+var I: integer;
+begin
+   Result:= -1;
+   produto:= SoLetras(Produto);
+   for I := 1 to 10 do
+   begin
+      if (UpperCase(produto)) = UpperCase(StringGrid1.Cells[CNT_PRODUTO, i]) then
+      begin
+         Result:=(i);
+         break;
+      end;
+   end;
+end;
+
+end.
